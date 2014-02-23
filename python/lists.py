@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import itertools
+from collections import Counter
 
 # Worth noting, since the list object is mutable all solutions here
 # attempt to return a new list, to preserve data integrity.
@@ -109,23 +110,43 @@ assert(compress(liS) == ['hi'])
 assert(compress(liN) == [])
 print("1.08 -- PASSED")
 
-# 1.09 Pack Duplicates to Sublist TODO
+# 1.09 Pack Duplicates to Sublist
 def pack(l):
-    if not l:
-        return []
+    return [list(g) for k,g in itertools.groupby(l)]
 
-#assert(pack([1,2,2,3,2,4,4,4,4]) == [[1],[2, 2],[3],[2],[4,4,4,4]])
-#assert(pack([1,1,1,1,1]) == [[1,1,1,1,1]])
-#assert(pack(liN) == [])
-#print("1.09 -- PASSED")
+assert(pack([1,2,2,3,2,4,4,4,4]) == [[1],[2, 2],[3],[2],[4,4,4,4]])
+assert(pack([1,1,1,1,1]) == [[1,1,1,1,1]])
+assert(pack(liN) == [])
+print("1.09 -- PASSED")
 
-# 1.10 Run-length TODO
+# 1.10 Run-length Encoding
+def encode(l):
+    return [[len(sublist), sublist[0]] for sublist in pack(l)]
 
-# 1.11 TODO
+assert(encode([1,2,2,3,2,4,4,4,4]) == [[1, 1],[2, 2],[1, 3],[1, 2],[4, 4]])
+assert(encode([1,1,1,1,1]) == [[5, 1]])
+assert(encode(liN) == [])
+print("1.10 -- PASSED")
 
-# 1.12 TODO
+# 1.11 Modified Encode
+def encode_modified(l):
+    return [[len(item), item[0]] if len(item) > 1 else item[0] for item in pack(l)]
 
-# 1.13 #TODO
+assert(encode_modified([1,2,2,3,2,4,4,4,4]) == [1,[2, 2],3,2,[4, 4]])
+assert(encode_modified([1,1,1,1,1]) == [[5, 1]])
+assert(encode_modified(liN) == [])
+print("1.11 -- PASSED")
+
+# 1.12 Decode Encoded List
+def reverse_encode(l):
+    return flatten([[item[1]]*item[0] if isinstance(item, list) else item for item in l])
+
+assert(reverse_encode([1,[2, 2],3,2,[4, 4]]) == [1,2,2,3,2,4,4,4,4])
+assert(reverse_encode([[5,1]]) == [1,1,1,1,1])
+assert(reverse_encode(liN) == [])
+print("1.12 -- PASSED")
+
+# 1.13 SKIP: Duplicate of 1.11?
 
 # 1.14 Duplicate Items
 def dupli(l):
@@ -152,7 +173,6 @@ assert(drop(li, 2) == [0, 2, 4, 6, 8])
 assert(drop(li, 9) == [0, 1, 2, 3, 4, 5, 6, 7, 9])
 assert(drop(liN, 3) == [])
 print("1.16 -- PASSED")
-
 
 #1.17 Split List
 def split(l, n):
@@ -208,6 +228,30 @@ print("1.22 -- PASSED")
 
 # 1.23-1.25 SKIP: Can't test, asking for randomness
 
-# 1.26 nCk TODO
-def combination(l, n, k):
-    pass
+# 1.26 nCk
+def combination(l, k):
+    return itertools.permutations(l, k)
+
+assert(list(combination([1,2,3],2)) == [(1,2),(1,3),(2,1),(2,3),(3,1),(3,2)])
+print("1.26 -- PASSED")
+
+# 1.27 Disjoint Sets TODO
+
+# 1.28.1 Subset Sort
+def lsort(l):
+    return sorted(l, key=len)
+
+assert(lsort([[1,2],[3],[4,5,6]])==[[3],[1,2],[4,5,6]])
+assert(lsort(liN) == [])
+print("1.28.1 -- PASSED")
+
+# 1.28.2
+def lfsort(l):
+    c = Counter()
+    for sublist in l:
+        c[len(sublist)] += 1
+    return sorted(l, key=lambda x: c[len(x)])
+
+assert(lfsort([[1],[2],[3],[4,5],[6,7],[8,9,0]]) == [[8,9,0],[4,5],[6,7],[1],[2],[3]])
+assert(lsort(liN) == [])
+print("1.28.2 -- PASSED")
